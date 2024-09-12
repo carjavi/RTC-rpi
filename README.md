@@ -176,6 +176,12 @@ timedatectl set-time '2020-01-17 20:54:00' # NB the format is YYYY-MM-DD HH:MM:S
 
 <br>
 
+# Troubleshooting
+> :warning: **Warning:** Si al reiniciar no funciona chequea el voltaje de la bateria del RTC puede que este mala.
+
+
+<br>
+
 ---
 Copyright &copy; 2022 [carjavi](https://github.com/carjavi). <br>
 ```www.instintodigital.net``` <br>
