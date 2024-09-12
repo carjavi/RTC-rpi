@@ -1,6 +1,6 @@
 <p align="center"><img src="./img/rtcRPi.png" width="300"   alt=" " /></p>
 <h1 align="center">RTC DS3231 module in a Raspberry Pi </h1> 
-<h4 align="right">Agu 24</h4>
+<h4 align="right">Aug 24</h4>
 
 <img src="https://img.shields.io/badge/Hardware-Raspberry%20ver%204-red">
 <img src="https://img.shields.io/badge/Hardware-Raspberry%203B%2B-red">
