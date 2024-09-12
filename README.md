@@ -8,227 +8,171 @@
 
 
 <br>
-Aquí te dejo un script en Python3 para usar el módulo RTC DS3231 en una Raspberry Pi.
-El script toma la fecha y hora del RTC al iniciar y la actualiza desde Internet si está disponible.
 
 <p align="center"><img src="./img/rtcRPi1.png" width="300"   alt=" " /></p>
 <p align="center"><img src="./img/rtcRPi2.png" width="300"   alt=" " /></p>
 
 <br>
 
-https://www.raspipc.es/blog/anadir-un-reloj-rtc-a-la-raspberry-pi/
-https://www.arduinoecia.com.br/como-usar-rtc-ds3231-raspberry-pi/
+# Install
 
-chrome-extension://laameccjpleogmfhilmffpdbiibgbekf/suspended.html?title=Muchos%20aparatos%20raros%3A%20Instalar%20y%20configurar%20reloj%20RTC%20DS3231%20en%20Raspberry%20Pi%20con%20Raspbian%20Jessie&url=https%3A%2F%2Fmuchosaparatosraros.blogspot.com%2F2016%2F05%2Finstalar-y-configurar-reloj-rtc-ds3231.html&time=1725858673760
+1. Habilitar I2C en Raspberry Pi: <br>
+Ejecuta ```sudo raspi-config```. Selecciona Interfacing Options y luego selecciona I2C. Habilita el I2C. Reinicia la Raspberry Pi con ```sudo reboot```.
 
-https://monkiki.github.io/2017/03/22/rtc-ds3231-en-raspberry-pi.html
+2. Instalar herramientas de I2C:<br>
+Para verificar que el módulo RTC esté correctamente conectado, instala las herramientas de I2C.
 
-```
+```bash
 sudo apt-get update && sudo apt-get full-upgrade
+sudo apt-get install i2c-tools
 sudo reboot
-sudo apt-get install i2c-tools
-sudo i2cdetect -y 1
 ```
 
-```
-2. Habilitar I2C en Raspberry Pi:
-Ejecuta sudo raspi-config.
-Selecciona Interfacing Options y luego selecciona I2C.
-Habilita el I2C.
-Reinicia la Raspberry Pi con sudo reboot.
-
-3. Instalar herramientas de I2C:
-Para verificar que el módulo RTC esté correctamente conectado, instala las herramientas de I2C:
-
-bash
-Copiar código
-sudo apt-get install i2c-tools
-4. Verificar el RTC DS3231:
+3. Verificar el RTC DS3231:<br>
 Ejecuta el siguiente comando para asegurarte de que la Raspberry Pi detecta el RTC:
 
-bash
-Copiar código
+```bash
 sudo i2cdetect -y 1
+```
 Debes ver el dispositivo en la dirección 0x68. Si aparece, el RTC está correctamente conectado.
 
-5. Configurar el RTC DS3231:
-Ahora, vamos a indicarle al sistema que use el RTC DS3231. Para hacer esto:
+4. Configurar el RTC DS3231:<br>
+Ahora, vamos a indicarle al sistema que use el RTC DS3231. Para hacer esto. Abre el archivo config.txt.
 
-Abre el archivo config.txt:
-
-bash
-Copiar código
+```bash
 sudo nano /boot/config.txt
+```
 Agrega la siguiente línea al final del archivo para habilitar el uso del RTC:
 
-bash
-Copiar código
+```bash
 dtoverlay=i2c-rtc,ds3231
+```
 Guarda y cierra el archivo.
 
-6. Desactivar el reloj por software:
+5. Desactivar el reloj por software:
 La Raspberry Pi usa un reloj de software por defecto (fake-hwclock). Debemos desactivarlo:
 
-bash
-Copiar código
+```bash
 sudo apt-get -y remove fake-hwclock
 sudo update-rc.d -f fake-hwclock remove
 sudo systemctl disable fake-hwclock
-7. Actualizar los scripts de inicio:
-El RTC ahora debe configurarse para sincronizar la hora al arrancar. Modifica el archivo /lib/udev/hwclock-set:
+```
+6. Actualizar los scripts de inicio:
+El RTC ahora debe configurarse para sincronizar la hora al arrancar. Modifica el archivo ```/lib/udev/hwclock-set```.
 
-bash
-Copiar código
+```bash
 sudo nano /lib/udev/hwclock-set
+```
 Busca las siguientes líneas y coméntalas agregando # al inicio de cada línea:
 
-bash
-Copiar código
+```bash
 if [ -e /run/systemd/system ] ; then
     exit 0
-fi
+
+```
 Estas líneas deben quedar así:
 
-bash
-Copiar código
+```bash
 #if [ -e /run/systemd/system ] ; then
 #    exit 0
 #fi
+```
 Guarda y cierra el archivo.
 
-8. Reiniciar la Raspberry Pi:
-Reinicia la Raspberry Pi para aplicar los cambios:
-
-bash
-Copiar código
+7. Reiniciar la Raspberry Pi: <br>
+```bash
 sudo reboot
-9. Verificar la hora del RTC:
+```
+
+8. Verificar la hora del RTC:<br>
 Después del reinicio, puedes verificar la hora del RTC ejecutando:
 
-bash
-Copiar código
+```bash
 sudo hwclock -r
+```
 Si el comando muestra la hora correcta, el RTC está configurado correctamente.
 
-10. Sincronizar el RTC con la hora del sistema:
-Si necesitas sincronizar la hora del sistema con el RTC, puedes hacerlo con el siguiente comando:
+9. Sincronizar el RTC con la hora del sistema:
+Si necesitas sincronizar la hora del sistema con el RTC, puedes hacerlo con el siguiente comando.
 
-bash
-Copiar código
+```bash
 sudo hwclock -w
-Esto grabará la hora actual del sistema en el RTC. Ahora, incluso si la Raspberry Pi se apaga, el RTC mantendrá la hora correcta.
+```
 
-11. Configurar RTC como servicio en SYSTEMD (opcional):
+## Summary Commands
+```bash
+sudo hwclock -r  # Para leer la fecha y hora desde el dispositivo RTC
+sudo hwclock -w # Para escribir la fecha y hora desde al dispositivo RTC
+sudo date -s "13 APR 2016 13:06:00" # poner la hora manual
+cat /proc/driver/rtc //Podemos obtener más inf RTC
+sudo hwclock --set --date=<date_string> # poner la hora manual
+```
+
+<br>
+
+# Configurar RTC como servicio en SYSTEMD (opcional):
 Para que la sincronización del RTC se ejecute como un servicio de sistema en SYSTEMD, podemos crear un archivo de servicio personalizado.
 
 Crea el archivo de servicio:
 
-bash
-Copiar código
+```bash
 sudo nano /etc/systemd/system/rtc-sync.service
+```
 Agrega el siguiente contenido:
 
-ini
-Copiar código
+```bash
 [Unit]
-Description=Sincronización de tiempo con el RTC
+Description=RTC-RPi
 After=network.target
 
 [Service]
 ExecStart=/sbin/hwclock --hctosys
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.
+```
 Guarda y cierra el archivo, luego habilítalo:
 
-bash
-Copiar código
+```bash
 sudo systemctl enable rtc-sync.service
 sudo systemctl start rtc-sync.service
+sudo systemctl daemon-reload
+```
 Con esto, cada vez que la Raspberry Pi se reinicie, se sincronizará la hora del sistema con el RTC DS3231 automáticamente.
-```
-
-<br>
 
 
-# Service
-
-rtc-sync.service
-
-```
-sudo nano /etc/systemd/system/RTC-rpi.service
-```
-sample: 
-sudo systemctl daemon-reload
-sudo systemctl restart rtc-sync.service
-sudo journalctl -f -u rtc-sync.service
+## Comandos SYSTEMD Utiles
+```bash
 sudo systemctl status rtc-sync.service
-sudo journalctl -f -u rtc-sync.service
+sudo systemctl stop rtc-sync.service
+sudo systemctl start rtc-sync.service
 sudo systemctl disable rtc-sync.service
+sudo systemctl enable rtc-sync.service
+sudo systemctl restart rtc-sync.service
+systemctl --failed  #ver los servicios que fallaron
+sudo systemctl daemon-reload # Recarga su configuración. Esto es necesario después de hacer cambios en los archivos de configuración de unidades
+```
 
-
+## Verifica funcionamiento del RTC:
 ```bash
-[Unit]
-Description=RTC-rpi
-After=multi-user.target
-
-[Service]
-ExecStart=/usr/bin/python3 /home/carjavi/RTC-rpi.py
-StandardOutput=append:/home/carjavi/RTC-rpi.log
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
+sudo journalctl | grep # Verifica los mensajes relacionados con el RTC
+sudo journalctl | grep rtc # Para verificar la detección del RTC.
+sudo journalctl -b | grep rtc # Verifica los mensajes de arranque 
+sudo journalctl | grep hwclock # Verifica los mensajes del servicio hwclock (para revisar si el sistema usa el RTC para sincronizar el reloj)
+sudo journalctl | grep timedatectl # Verificar mensajes de timedatectl y sincronización de tiempo
+sudo journalctl -p  # Buscar errores 
+sudo journalctl -p warning # Buscar advertencias
 ```
 
-```bash
-[Unit]
-Description=RTC Raspberry Pi Service
-After=network.target
 
-[Service]
-# Si usas un entorno virtual:
-WorkingDirectory=/home/carjavi/
-ExecStart=/bin/bash -c 'source /home/carjavi/env/bin/activate && python3 /home/carjavi/RTC-rpi.py'
-Restart=always
-User=carjavi
-Environment=PYTHONUNBUFFERED=1
-
-# Hacer que el servicio inicie después de montar el sistema de archivos (opcional)
-ExecStartPre=/bin/sleep 10
-
-[Install]
-WantedBy=multi-user.target
+## NTP servicio (habilita o desabilita la actualizacion de internet)
+```
+timedatectl status
+sudo timedatectl set-ntp false
+sudo timedatectl set-ntp true
+timedatectl set-time '2020-01-17 20:54:00' # NB the format is YYYY-MM-DD HH:MM:SS
 ```
 
-```bash
-[Unit]
-Description=RTC-rpi
-After=network.target
-
-[Service]
-WorkingDirectory=/home/carjavi/
-ExecStart=/bin/bash -c 'python3 -u /home/carjavi/RTC-rpi.py'
-Restart=on-failure
-StandardOutput=append:/home/carjavi/RTC-rpi.log
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```
-sudo systemctl daemon-reload
-sudo systemctl enable RTC-rpi
-sudo systemctl start RTC-rpi
-sudo reboot
-```
-```
-sudo journalctl -f -u RTC-rpi
-sudo systemctl status RTC-rpi
-sudo systemctl restart RTC-rpi
-sudo systemctl disable RTC-rpi
-sudo systemctl stop RTC-rpi
-```
 
 <br>
 
