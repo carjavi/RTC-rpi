@@ -68,7 +68,7 @@ Busca las siguientes líneas y coméntalas agregando # al inicio de cada línea:
 ```bash
 if [ -e /run/systemd/system ] ; then
     exit 0
-
+fi
 ```
 Estas líneas deben quedar así:
 
@@ -129,7 +129,7 @@ After=network.target
 ExecStart=/sbin/hwclock --hctosys
 
 [Install]
-WantedBy=multi-user.
+WantedBy=multi-user.target
 ```
 Guarda y cierra el archivo, luego habilítalo:
 
@@ -191,5 +191,3 @@ carjavi@hotmail.com <br>
 </p>
 
 
-# RTC-rpi
-Install an RTC DS3231 module in a Raspberry Pi
