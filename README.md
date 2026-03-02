@@ -14,6 +14,12 @@
 
 <br>
 
+# Time RPi from console
+```bash
+sudo date -s "13 APR 2016 13:06:00"
+```
+
+
 # Install
 
 1. Habilitar I2C en Raspberry Pi: <br>
